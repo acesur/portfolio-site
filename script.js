@@ -34,6 +34,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Also handle CTA button smooth scrolling
+    const ctaButton = document.querySelector('.cta-button');
+    if (ctaButton) {
+        ctaButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                const offsetTop = targetSection.offsetTop - 70;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    }
+
     // Navbar background change on scroll
     const navbar = document.querySelector('.navbar');
     
@@ -77,104 +95,55 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('animate-in');
+                // Add a small delay for staggered animation
+                setTimeout(() => {
+                    entry.target.classList.add('animate-in');
+                }, index * 100);
             }
         });
     }, observerOptions);
 
     // Observe elements for animation
-    const animateElements = document.querySelectorAll('.experience-item, .project-card, .contact-item');
+    const animateElements = document.querySelectorAll('.experience-item, .project-card, .contact-item, .education-item');
     animateElements.forEach(el => {
         observer.observe(el);
     });
 
-    // Add CSS classes for animations
-    const style = document.createElement('style');
-    style.textContent = `
-        .experience-item,
-        .project-card,
-        .contact-item {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .animate-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .nav-link.active {
-            color: var(--primary-color);
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Typing effect for hero tagline (optional enhancement)
+    // Typing effect for hero tagline
     const tagline = document.querySelector('.hero-tagline');
-    const originalText = tagline.textContent;
-    
-    function typeWriter() {
-        tagline.textContent = '';
-        tagline.style.borderRight = '2px solid rgba(255, 255, 255, 0.7)';
+    if (tagline) {
+        const originalText = tagline.textContent;
         
-        let i = 0;
-        const timer = setInterval(() => {
-            if (i < originalText.length) {
-                tagline.textContent += originalText.charAt(i);
-                i++;
-            } else {
-                clearInterval(timer);
-                setTimeout(() => {
-                    tagline.style.borderRight = 'none';
-                }, 500);
-            }
-        }, 100);
-    }
+        function typeWriter() {
+            tagline.textContent = '';
+            tagline.style.borderRight = '2px solid rgba(255, 255, 255, 0.7)';
+            
+            let i = 0;
+            const timer = setInterval(() => {
+                if (i < originalText.length) {
+                    tagline.textContent += originalText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(timer);
+                    setTimeout(() => {
+                        tagline.style.borderRight = 'none';
+                    }, 500);
+                }
+            }, 100);
+        }
 
-    // Start typing effect after a short delay
-    setTimeout(typeWriter, 1000);
+        // Start typing effect after a short delay
+        setTimeout(typeWriter, 1000);
+    }
 
     // Add scroll to top functionality
     const scrollToTopBtn = document.createElement('button');
     scrollToTopBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     scrollToTopBtn.className = 'scroll-to-top';
+    scrollToTopBtn.setAttribute('aria-label', 'Scroll to top');
     document.body.appendChild(scrollToTopBtn);
-
-    // Style the scroll to top button
-    const scrollBtnStyle = document.createElement('style');
-    scrollBtnStyle.textContent = `
-        .scroll-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        .scroll-to-top:hover {
-            transform: scale(1.1);
-        }
-
-        .scroll-to-top.visible {
-            display: flex;
-            opacity: 1;
-        }
-    `;
-    document.head.appendChild(scrollBtnStyle);
 
     // Show/hide scroll to top button
     window.addEventListener('scroll', () => {
@@ -193,22 +162,150 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Form validation (if contact form is added later)
+    // Add loading animation
+    function addLoadingAnimation() {
+        const heroText = document.querySelector('.hero-text');
+        const heroImage = document.querySelector('.hero-image');
+        
+        if (heroText && heroImage) {
+            heroText.style.opacity = '0';
+            heroText.style.transform = 'translateY(30px)';
+            heroImage.style.opacity = '0';
+            heroImage.style.transform = 'translateX(30px)';
+            
+            setTimeout(() => {
+                heroText.style.transition = 'all 0.8s ease';
+                heroText.style.opacity = '1';
+                heroText.style.transform = 'translateY(0)';
+            }, 300);
+            
+            setTimeout(() => {
+                heroImage.style.transition = 'all 0.8s ease';
+                heroImage.style.opacity = '1';
+                heroImage.style.transform = 'translateX(0)';
+            }, 600);
+        }
+    }
+
+    // Initialize loading animation
+    addLoadingAnimation();
+
+    // Add interactive hover effects for project cards
+    const projectCards = document.querySelectorAll('.project-card');
+    projectCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Add particle effect to hero section (optional enhancement)
+    function createParticles() {
+        const hero = document.querySelector('.hero');
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                pointer-events: none;
+                animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 2}s;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+            `;
+            hero.style.position = 'relative';
+            hero.appendChild(particle);
+        }
+        
+        // Add CSS animation for particles
+        if (!document.querySelector('#particle-animation')) {
+            const style = document.createElement('style');
+            style.id = 'particle-animation';
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+                    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // Initialize particles
+    createParticles();
+
+    // Email validation function (for future contact form)
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
 
-    // Lazy loading for images (when actual images are added)
+    // Add click tracking for project links (analytics ready)
+    const projectLinks = document.querySelectorAll('.project-link');
+    projectLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Analytics tracking can be added here
+            console.log('Project link clicked:', this.textContent);
+        });
+    });
+
+    // Add performance optimization: lazy load images when added
     if ('loading' in HTMLImageElement.prototype) {
         const images = document.querySelectorAll('img[loading="lazy"]');
         images.forEach(img => {
-            img.src = img.dataset.src;
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+            }
         });
-    } else {
-        // Fallback for browsers that don't support lazy loading
-        const script = document.createElement('script');
-        script.src = 'https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver';
-        document.body.appendChild(script);
     }
+
+    // Error handling for missing elements
+    function handleMissingElements() {
+        const requiredElements = ['.navbar', '.hero', '.about', '.projects', '.contact'];
+        requiredElements.forEach(selector => {
+            if (!document.querySelector(selector)) {
+                console.warn(`Required element ${selector} not found`);
+            }
+        });
+    }
+
+    handleMissingElements();
+
+    // Add keyboard navigation support
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
+    });
+
+    // Intersection observer for counting animations (when needed)
+    function animateCounters() {
+        const counters = document.querySelectorAll('[data-count]');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-count'));
+            let count = 0;
+            const increment = target / 100;
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(count);
+            }, 20);
+        });
+    }
+
+    // Initialize everything
+    console.log('Portfolio website loaded successfully');
 });
